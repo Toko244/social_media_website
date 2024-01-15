@@ -2,12 +2,12 @@
 import { onMounted, ref } from 'vue';
 
 defineProps({
-    ModelValue: {
-        type: String,
-        required: true,
-    },
-
     placeholder: String,
+});
+
+const model = defineModel({
+    type: String,
+    required: true,
 });
 
 const input = ref(null);
