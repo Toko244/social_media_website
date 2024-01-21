@@ -132,11 +132,14 @@ const showingNavigationDropdown = ref(false);
                         </ResponsiveNavLink>
                     </div>
                     </template>
-                    <PrimaryButton>
-                        <Link :href="route('login')">
-                            Login button
-                        </Link>
-                    </PrimaryButton>
+                    <template v-else>
+                        <PrimaryButton class="ml-2 mb-2">
+                            <Link :href="route('login')">
+                                Login button
+                            </Link>
+                        </PrimaryButton>
+                    </template>
+
                 </div>
             </div>
         </nav>

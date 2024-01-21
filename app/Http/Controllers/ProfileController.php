@@ -10,7 +10,9 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Redirect;
 use App\Http\Requests\ProfileUpdateRequest;
+use App\Http\Resources\UserResource;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
+use Illuminate\Support\Facades\Storage;
 
 class ProfileController extends Controller
 {
@@ -22,7 +24,7 @@ class ProfileController extends Controller
         return Inertia::render('Profile/View', [
             'mustVerifyEmail' => $user instanceof MustVerifyEmail,
             'status' => session('status'),
-            'user' => $user
+            'user' => new UserResource($user),
         ]);
     }
     /**
@@ -60,5 +62,31 @@ class ProfileController extends Controller
         $request->session()->regenerateToken();
 
         return Redirect::to('/');
+    }
+
+    public function updateImage(Request $request, User $user)
+    {
+        $data = $request->validate([
+            'cover' => ['nullable', 'image'],
+            'avatar' => ['nullable', 'image']
+        ]);
+
+        $user = $request->user();
+
+        $avatar = $data['avatar'] ?? null;
+        /** @var \Illuminate\Http\UploadedFile $cover */
+        $cover = $data['cover'] ?? null;
+        if ($cover) {
+            if ($user->cover_path) {
+                Storage::disk('public')->delete($user->cover_path);
+            }
+
+            $path = $cover->store('user-'.$user->id, 'public');
+            $user->update(['cover_path' => $path]);
+        }
+
+        session('success', 'Cover image has been updated');
+
+        return back()->with('status', 'cover-image-update');
     }
 }
